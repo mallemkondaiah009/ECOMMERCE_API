@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from django.core.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .jwt_check import CookieJWTAuthentication
 
@@ -90,7 +90,7 @@ class UserUpdates(APIView):
             )
         
 class UserLogin(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = []
 
     def post(self, request):
         email = request.data.get('email')
@@ -154,15 +154,33 @@ class UserProfile(APIView):
     authentication_classes = [CookieJWTAuthentication]  # Use custom authentication
 
     def get(self, request):
-        user = request.user  # Authenticated user from token
-        profile_data = {
-            'email': user.email,
-            'username': user.username,
-        }
-        return Response(
-            {
-                'message': 'Profile retrieved successfully',
+        try:
+            # Check if user is authenticated
+            if not request.user:
+                return Response({
+                    'error': 'Authentication required',
+                    'message': 'Please login to access your profile'
+                }, status=status.HTTP_401_UNAUTHORIZED)
+            
+            user = request.user  # Authenticated user from token
+            
+            # Build profile data
+            profile_data = {
+                'email': user.email,
+                'username': user.username,
+            }
+            
+            return Response({
+                'message': f'Welcome Back {user.username}!',
                 'user': profile_data
-            },
-            status=status.HTTP_200_OK
-        )
+            }, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            # Catch any other unexpected errors
+            return Response({
+                'error': 'An error occurred while retrieving profile',
+                'detail': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
