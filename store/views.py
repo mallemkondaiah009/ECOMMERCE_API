@@ -1,5 +1,5 @@
 
-from .serializers import ProductSerializer, CartSerializer, AddToCartSerializer
+from .serializers import ProductSerializer, CartSerializer
 from .models import Product, Cart
 from django.db.models import Q
 from rest_framework.views import APIView
@@ -58,16 +58,17 @@ class AllProducts(APIView):
     
 class AddToCart(APIView):
     authentication_classes = [CookieJWTAuthentication]
+
     def post(self, request):
-        # Validate input data
-        serializer = AddToCartSerializer(data=request.data)
+        # Validate input data using CartSerializer with request in context
+        serializer = CartSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
         product_id = serializer.validated_data['product_id']
         quantity = serializer.validated_data['quantity']
 
-        # Get product
-        product = get_object_or_404(Product, id=product_id)
+        # Get product (validation already ensures it exists)
+        product = Product.objects.get(id=product_id)
 
         # Get or create cart item
         cart_item, created = Cart.objects.get_or_create(
@@ -82,7 +83,7 @@ class AddToCart(APIView):
             cart_item.save()
 
         # Return response
-        cart_serializer = CartSerializer(cart_item)
+        cart_serializer = CartSerializer(cart_item, context={'request': request})
         return Response(
             {
                 'message': 'Item added to cart successfully',
@@ -90,4 +91,20 @@ class AddToCart(APIView):
             },
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
         )
+    
+class UpdateProduct(APIView):
+    def delete(self,request,pk):
+        try:
+            cart_product = Cart.objects.get(pk=pk)
+            cart_product.delete()
+            return Response(
+                {'Cart Item Removed...'},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        except Cart.DoesNotExist:
+            return Response(
+                {'error': 'Item Does not exist!'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 

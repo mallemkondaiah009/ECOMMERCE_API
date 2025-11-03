@@ -138,7 +138,8 @@ class UserLogin(APIView):
                 httponly=True,
                 secure=False,
                 samesite='Lax',
-                max_age = 7 * 24 * 60 * 60  # 7 days in seconds = 604,800
+                max_age = 7 * 24 * 60 * 60, # 7 days in seconds = 604,800
+
             )
             return response
 
@@ -181,6 +182,28 @@ class UserProfile(APIView):
                 'error': 'An error occurred while retrieving profile',
                 'detail': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    def post(self,request):
+        response = Response({
+            'success':True,
+            'message': 'logout successfully..'
+        }, status=status.HTTP_200_OK)
+
+        response.delete_cookie(
+            'access_token',
+            path='/',
+            domain=None,
+            samesite='Lax'
+        )
+
+        response.delete_cookie(
+            'refresh_token',
+            path='/',
+            domain=None,
+            samesite='Lax'
+        )
+
+        return response
         
 
 
