@@ -10,7 +10,6 @@ from .jwt_check import CookieJWTAuthentication
 
 
 class UserRegistration(APIView):
-    permission_classes = [AllowAny]
     def post(self,request):
         username = request.data.get('username')
         email = request.data.get('email')
