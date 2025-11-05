@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'store',
+    'payments',
     'rest_framework',
     'rest_framework_simplejwt'
 ]
@@ -145,3 +146,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
 }
+
+# Razorpay Configuration
+RAZORPAY_KEY_ID = ''
+RAZORPAY_KEY_SECRET = ''
