@@ -92,6 +92,19 @@ class AddToCart(APIView):
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
         )
     
+    def get(self, request):
+        cart_items = Cart.objects.filter(user=request.user)
+        serializer = CartSerializer(cart_items, many=True, context={'request': request})
+        return Response(
+            {
+                'message': 'Cart items retrieved successfully',
+                'cart_items': serializer.data
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+    
 class UpdateProduct(APIView):
     def delete(self,request,pk):
         try:
@@ -106,5 +119,7 @@ class UpdateProduct(APIView):
                 {'error': 'Item Does not exist!'},
                 status=status.HTTP_404_NOT_FOUND
             )
+        
+
 
 
