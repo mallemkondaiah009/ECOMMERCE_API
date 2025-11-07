@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'store',
+    'frontend',
     #'payments',
     'rest_framework',
     'rest_framework_simplejwt'
@@ -61,7 +62,7 @@ ROOT_URLCONF = 'ecom_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
