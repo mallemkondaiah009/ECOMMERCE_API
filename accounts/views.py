@@ -14,11 +14,12 @@ class UserRegistration(APIView):
         username = request.data.get('username')
         email = request.data.get('email')
         password = request.data.get('password')
-
-        if User.objects.filter(username=username).exists():
-            return Response({"error": "username already exists!"}, status=status.HTTP_400_BAD_REQUEST)
+        
         if User.objects.filter(email=email).exists():
             return Response({"error":"email already exists!"}, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "username already exists!"}, status=status.HTTP_400_BAD_REQUEST)
+        
         
         serializer = UserSerializer(data=request.data)
 
@@ -144,7 +145,7 @@ class UserLogin(APIView):
 
         else:
             return Response(
-                {"error": "Invalid username or password"},
+                {"error": "Incorrect password"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
