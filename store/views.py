@@ -60,37 +60,69 @@ class AddToCart(APIView):
     authentication_classes = [CookieJWTAuthentication]
 
     def post(self, request):
-        # Validate input data using CartSerializer with request in context
-        serializer = CartSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
+        try:
+            # Get and validate product_id
+            product_id = request.data.get('product_id')
+            quantity = request.data.get('quantity', 1)
+            
+            # Validate product_id exists
+            if not product_id:
+                return Response(
+                    {'error': 'Product ID is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Validate quantity
+            if not isinstance(quantity, int) or quantity < 1:
+                return Response(
+                    {'error': 'Quantity must be a positive integer'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Validate product exists
+            try:
+                product = Product.objects.get(id=product_id)
+            except Product.DoesNotExist:
+                return Response(
+                    {'error': 'Product not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
 
-        product_id = serializer.validated_data['product_id']
-        quantity = serializer.validated_data['quantity']
+            # Get or create cart item
+            cart_item, created = Cart.objects.get_or_create(
+                user=request.user,
+                product=product,
+                defaults={'quantity': quantity}
+            )
 
-        # Get product (validation already ensures it exists)
-        product = Product.objects.get(id=product_id)
+            if not created:
+                # If item already exists, update quantity
+                cart_item.quantity += quantity
+                cart_item.save()
 
-        # Get or create cart item
-        cart_item, created = Cart.objects.get_or_create(
-            user=request.user,
-            product=product,
-            defaults={'quantity': quantity}
-        )
-
-        if not created:
-            # If item already exists, update quantity
-            cart_item.quantity += quantity
-            cart_item.save()
-
-        # Return response
-        cart_serializer = CartSerializer(cart_item, context={'request': request})
-        return Response(
-            {
-                'message': 'Item added to cart successfully',
-                'cart_item': cart_serializer.data
-            },
-            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
-        )
+            # Return response
+            cart_serializer = CartSerializer(cart_item)
+            return Response(
+                {
+                    'message': 'Item added to cart successfully',
+                    'cart_item': cart_serializer.data
+                },
+                status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+            )
+        
+        except ValueError as e:
+            return Response(
+                {'error': f'Invalid data format: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        except Exception as e:
+            # Log the error for debugging
+            # logger.error(f"Error adding item to cart: {str(e)}")
+            return Response(
+                {'error': 'An unexpected error occurred while adding item to cart'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
     def get(self, request):
         cart_items = Cart.objects.filter(user=request.user)

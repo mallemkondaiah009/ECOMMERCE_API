@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'store',
-    'payments',
+    #'payments',
     'rest_framework',
     'rest_framework_simplejwt'
 ]
@@ -148,5 +148,5 @@ SIMPLE_JWT = {
 }
 
 # Razorpay Configuration
-RAZORPAY_KEY_ID = ''
-RAZORPAY_KEY_SECRET = ''
+# RAZORPAY_KEY_ID = "rzp_test_MU47CjQHuTTZ7q"
+# RAZORPAY_KEY_SECRET = "w3WciKv1mLtACQZaGaRMhaaB"
