@@ -151,7 +151,6 @@ class UserLogin(APIView):
 
 
 class UserProfile(APIView):
-    permission_classes = []
     authentication_classes = [CookieJWTAuthentication]  # Use custom authentication
 
     def get(self, request):
