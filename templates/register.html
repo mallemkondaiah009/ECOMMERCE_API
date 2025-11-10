@@ -79,6 +79,22 @@
         const passwordStrength = document.getElementById('password-strength');
         let notificationTimeout = null;
 
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         // Password strength checker
         function checkPasswordStrength(password) {
             const minLength = password.length >= 8;
@@ -178,11 +194,16 @@
             submitBtn.querySelector('#spinner').classList.remove('hidden');
 
             try {
+                // Get CSRF token
+                const csrftoken = getCookie('csrftoken');
+
                 const response = await fetch('http://127.0.0.1:8000/api/auth/user-registration/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData)
                 });
 
