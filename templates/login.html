@@ -68,6 +68,22 @@
         const togglePassword = document.getElementById('toggle-password');
         let notificationTimeout = null;
 
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         // Toggle password visibility
         togglePassword.addEventListener('click', () => {
             const isPassword = passwordInput.type === 'password';
@@ -133,11 +149,16 @@
             submitBtn.querySelector('#spinner').classList.remove('hidden');
 
             try {
+                // Get CSRF token
+                const csrftoken = getCookie('csrftoken');
+
                 const response = await fetch('http://127.0.0.1:8000/api/auth/user-login/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
                     },
+                    credentials: 'include',
                     body: JSON.stringify(formData)
                 });
 
@@ -146,12 +167,10 @@
                 if (response.ok) {
                     showNotification(successMessage, data.message || 'Login successful! Redirecting...');
                     form.reset();
-                    // Redirect to a dashboard or home page after 2 seconds
                     setTimeout(() => {
-                        window.location.href = '/profile'; // Adjust to your dashboard URL
+                        window.location.href = '/profile';
                     }, 2000);
                 } else {
-                    // Handle backend errors
                     if (data.error) {
                         if (data.error.includes('email')) {
                             showFieldError(emailError, data.error);
