@@ -12,7 +12,7 @@ from accounts.jwt_check import CookieJWTAuthentication
 
 
 class ProductSearch(APIView):
-    permission_classes=[]
+    
     def get(self, request, search_name):
         try:
 
@@ -64,6 +64,7 @@ class AddToCart(APIView):
             # Get and validate product_id
             product_id = request.data.get('product_id')
             quantity = request.data.get('quantity', 1)
+            action = request.data.get('action', 'add')  # 'add', 'set', or 'decrease'
             
             # Validate product_id exists
             if not product_id:
@@ -76,6 +77,13 @@ class AddToCart(APIView):
             if not isinstance(quantity, int) or quantity < 1:
                 return Response(
                     {'error': 'Quantity must be a positive integer'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Validate action
+            if action not in ['add', 'set', 'decrease']:
+                return Response(
+                    {'error': 'Action must be "add", "set", or "decrease"'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
@@ -96,15 +104,28 @@ class AddToCart(APIView):
             )
 
             if not created:
-                # If item already exists, update quantity
-                cart_item.quantity += quantity
+                # Handle different actions
+                if action == 'add':
+                    cart_item.quantity += quantity
+                elif action == 'decrease':
+                    cart_item.quantity -= quantity
+                    # If quantity becomes 0 or less, delete the item
+                    if cart_item.quantity <= 0:
+                        cart_item.delete()
+                        return Response(
+                            {'message': 'Item removed from cart'},
+                            status=status.HTTP_200_OK
+                        )
+                # elif action == 'set':
+                #     cart_item.quantity = quantity
+                
                 cart_item.save()
 
             # Return response
             cart_serializer = CartSerializer(cart_item)
             return Response(
                 {
-                    'message': 'Item added to cart successfully',
+                    'message': 'Cart updated successfully',
                     'cart_item': cart_serializer.data
                 },
                 status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
@@ -120,10 +141,9 @@ class AddToCart(APIView):
             # Log the error for debugging
             # logger.error(f"Error adding item to cart: {str(e)}")
             return Response(
-                {'error': 'An unexpected error occurred while adding item to cart'},
+                {'error': 'An unexpected error occurred while updating cart'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-    
+            )    
     def get(self, request):
         cart_items = Cart.objects.filter(user=request.user)
         serializer = CartSerializer(cart_items, many=True, context={'request': request})
@@ -134,9 +154,7 @@ class AddToCart(APIView):
             },
             status=status.HTTP_200_OK
         )
-
-
-    
+       
 class UpdateProduct(APIView):
     def delete(self,request,pk):
         try:
