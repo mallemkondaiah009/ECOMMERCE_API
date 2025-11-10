@@ -44,7 +44,13 @@
                 <p id="email-display" class="text-lg text-gray-900"></p>
             </div>
             <div class="flex justify-end space-x-2 mt-6">
-                <a href="/login" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">Logout</a>
+                <button id="logout-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2">
+                    <span>Logout</span>
+                    <svg id="logout-spinner" class="hidden h-4 w-4 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                </button>
                 <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Dashboard</a>
             </div>
         </div>
@@ -64,7 +70,25 @@
         const loading = document.getElementById('loading');
         const usernameDisplay = document.getElementById('username-display');
         const emailDisplay = document.getElementById('email-display');
+        const logoutBtn = document.getElementById('logout-btn');
+        const logoutSpinner = document.getElementById('logout-spinner');
         let notificationTimeout = null;
+
+        // Function to get CSRF token from cookies
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
         // Show notification
         function showNotification(element, message) {
@@ -97,10 +121,8 @@
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        // Add Authorization header if token-based auth is used
-                        // 'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     },
-                    credentials: 'include' // Include cookies if using cookie-based auth
+                    credentials: 'include'
                 });
 
                 const data = await response.json();
@@ -112,7 +134,6 @@
                     loading.classList.add('hidden');
                     showNotification(successMessage, 'Profile loaded successfully!');
                 } else {
-                    // Handle errors (e.g., unauthenticated)
                     showNotification(errorMessage, data.error || data.detail || 'Failed to load profile. Please log in again.');
                     setTimeout(() => {
                         window.location.href = '/login';
@@ -126,6 +147,51 @@
                 }, 2000);
             }
         }
+
+        // Logout function
+        async function handleLogout() {
+            clearNotifications();
+
+            logoutBtn.disabled = true;
+            logoutBtn.querySelector('span').textContent = 'Logging out...';
+            logoutSpinner.classList.remove('hidden');
+
+            try {
+                const csrftoken = getCookie('csrftoken');
+
+                const response = await fetch('http://127.0.0.1:8000/api/auth/user-profile/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showNotification(successMessage, data.message || 'Logged out successfully! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1500);
+                } else {
+                    showNotification(errorMessage, data.error || data.detail || 'Logout failed. Please try again.');
+                    logoutBtn.disabled = false;
+                    logoutBtn.querySelector('span').textContent = 'Logout';
+                    logoutSpinner.classList.add('hidden');
+                }
+            } catch (error) {
+                showNotification(errorMessage, 'Network error. Please check if the server is running.');
+                console.error('Error:', error);
+                logoutBtn.disabled = false;
+                logoutBtn.querySelector('span').textContent = 'Logout';
+                logoutSpinner.classList.add('hidden');
+            }
+        }
+
+        // Add logout event listener
+        logoutBtn.addEventListener('click', handleLogout);
 
         // Load profile on page load
         document.addEventListener('DOMContentLoaded', fetchProfile);
