@@ -8,3 +8,7 @@ def login_view(request):
 
 def profile_view(request):
     return render(request, 'profile.html')
+
+def home_view(request):
+    return render(request, 'home.html')
+
