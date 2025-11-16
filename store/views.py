@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from accounts.jwt_check import CookieJWTAuthentication
+from django.db.models import Count
+import random
 
 
 
@@ -155,7 +157,7 @@ class AddToCart(APIView):
             status=status.HTTP_200_OK
         )
        
-class UpdateProduct(APIView):
+class DisplayProductWithId(APIView):
     def delete(self,request,pk):
         try:
             cart_product = Cart.objects.get(pk=pk)
@@ -170,6 +172,32 @@ class UpdateProduct(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
+    def get(self,request,pk):
+        product = Product.objects.get(pk=pk)
+        serializer = ProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
 
 
 
+
+
+class RandomProducts(APIView):
+    def get(self, request):
+        # Get total count of products
+        total_products = Product.objects.count()
+        
+        if total_products == 0:
+            return Response([], status=status.HTTP_200_OK)
+        
+        # If there are 5 or fewer products, return all of them
+        if total_products <= 5:
+            products = Product.objects.all()
+        else:
+            # Method 2: Random sampling by IDs - Better performance for large datasets
+            all_ids = list(Product.objects.values_list('id', flat=True))
+            random_ids = random.sample(all_ids, min(5, len(all_ids)))
+            products = Product.objects.filter(id__in=random_ids)
+        
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
