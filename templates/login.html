@@ -24,7 +24,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-900 to-indigo-600 flex items-center justify-center min-h-screen p-4">
+<body class="bg-white flex items-center justify-center min-h-screen p-4">
     <div id="notification-container" class="fixed top-4 right-4 z-50">
         <div id="error-message" class="hidden bg-white text-red-600 p-4 rounded-lg shadow-lg max-w-sm notification"></div>
         <div id="success-message" class="hidden bg-white text-green-600 p-4 rounded-lg shadow-lg max-w-sm notification"></div>
@@ -58,6 +58,19 @@
     </div>
 
     <script>
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
         const form = document.getElementById('login-form');
         const submitBtn = document.getElementById('submit-btn');
         const errorMessage = document.getElementById('error-message');
@@ -149,6 +162,17 @@
             submitBtn.querySelector('#spinner').classList.remove('hidden');
 
             try {
+                // Check if offline
+                if (!navigator.onLine) {
+                    // Simulate successful login for offline demo
+                    showNotification(successMessage, 'Offline mode: Login simulated successfully!');
+                    form.reset();
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                    return;
+                }
+
                 // Get CSRF token
                 const csrftoken = getCookie('csrftoken');
 
@@ -168,7 +192,7 @@
                     showNotification(successMessage, data.message || 'Login successful! Redirecting...');
                     form.reset();
                     setTimeout(() => {
-                        window.location.href = '/profile';
+                        window.location.href = '/';
                     }, 2000);
                 } else {
                     if (data.error) {
@@ -188,7 +212,7 @@
                     }
                 }
             } catch (error) {
-                showNotification(errorMessage, 'Network error. Please check if the server is running.');
+                showNotification(errorMessage, 'Network error. Please check if the server is running or try offline mode.');
                 console.error('Error:', error);
             } finally {
                 submitBtn.disabled = false;
