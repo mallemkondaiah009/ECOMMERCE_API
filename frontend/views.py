@@ -12,3 +12,9 @@ def profile_view(request):
 def home_view(request):
     return render(request, 'home.html')
 
+def cart_view(request):
+    return render(request, 'cart.html')
+
+def productView_view(request):
+    return render(request, 'view_product.html')
+
