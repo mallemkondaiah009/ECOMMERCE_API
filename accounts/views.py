@@ -127,19 +127,20 @@ class UserLogin(APIView):
             response.set_cookie(
                 key='refresh_token',
                 value=str(refresh),
-                httponly=True,
+                httponly=False,
                 secure=False,
                 samesite='Lax',
-                max_age = 10 * 24 * 60 * 60  # 10 days in seconds = 864,000
+                max_age = 10 * 24 * 60 * 60,  # 10 days in seconds = 864,000
+                path='/'
             )
             response.set_cookie(
                 key='access_token',
                 value=str(refresh.access_token),
-                httponly=True,
+                httponly=False,
                 secure=False,
                 samesite='Lax',
                 max_age = 7 * 24 * 60 * 60, # 7 days in seconds = 604,800
-
+                path='/'
             )
             return response
 
