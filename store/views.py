@@ -158,29 +158,22 @@ class AddToCart(APIView):
         )
        
 class DisplayProductWithId(APIView):
-    def delete(self,request,pk):
-        try:
-            cart_product = Cart.objects.get(pk=pk)
-            cart_product.delete()
-            return Response(
-                {'Cart Item Removed...'},
-                status=status.HTTP_204_NO_CONTENT
-            )
-        except Cart.DoesNotExist:
-            return Response(
-                {'error': 'Item Does not exist!'},
-                status=status.HTTP_404_NOT_FOUND
-            )
         
     def get(self,request,pk):
         product = Product.objects.get(pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class DeleteCartItemView(APIView):
+
+    def delete(self, request, pk):
+        cart_item = get_object_or_404(Cart, id=pk)
+        cart_item.delete()
+        return Response({
+            "message": "Item removed from cart successfully"
+        }, status=status.HTTP_204_NO_CONTENT)
+
         
-
-
-
-
 
 class RandomProducts(APIView):
     def get(self, request):
