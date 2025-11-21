@@ -164,7 +164,7 @@
         }
 
         .carousel-section {
-            width: 100%; /* Full page width */
+            width: 100%;
             margin: 80px 0 40px;
             overflow: hidden;
             position: relative;
@@ -172,7 +172,7 @@
 
         .carousel-container {
             width: 100%;
-            height: 500px; /* Increased height for full-page effect */
+            height: 500px;
             position: relative;
         }
 
@@ -181,32 +181,32 @@
             top: 0;
             left: 0;
             height: 100%;
-            white-space: nowrap; /* Prevent wrapping */
+            white-space: nowrap;
             transition: transform 0.5s ease-in-out;
         }
 
         .carousel-item {
-            display: inline-block; /* Side-by-side without Flexbox */
-            width: 100vw; /* Full viewport width */
+            display: inline-block;
+            width: 100vw;
             height: 100%;
-            text-align: center; /* Center card horizontally */
+            text-align: center;
             position: relative;
         }
 
         .carousel-card {
-            display: inline-block; /* Center within item */
+            display: inline-block;
             background: #ffffff;
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid #e9ecef;
-            width: 90%; /* Slightly less than full width for subtle margin */
-            max-width: 1200px; /* Constrain for large screens */
+            width: 90%;
+            max-width: 1200px;
             height: 100%;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             transition: box-shadow 0.3s ease;
             position: relative;
             top: 50%;
-            transform: translateY(-50%); /* Center vertically */
+            transform: translateY(-50%);
         }
 
         .carousel-card:hover {
@@ -241,7 +241,7 @@
             vertical-align: top;
             position: relative;
             top: 50%;
-            transform: translateY(-50%); /* Center vertically */
+            transform: translateY(-50%);
         }
 
         .carousel-info h3 {
@@ -272,7 +272,7 @@
             font-size: 1rem;
             color: #6c757d;
             line-height: 1.5;
-            max-height: 6em; /* Limit to ~4 lines */
+            max-height: 6em;
             overflow: hidden;
             display: -webkit-box;
             -webkit-line-clamp: 4;
@@ -397,25 +397,14 @@
         }
 
         .product-card .add-to-cart {
-            background: #ffffff;
+            background: #279f4b6c;
             color: #212529;
             border: 2px solid #212529;
-        }
-
-        .product-card .add-to-cart:hover {
-            background: #212529;
-            color: #ffffff;
         }
 
         .product-card .buy-now {
             background: #212529;
             color: #ffffff;
-        }
-
-        .product-card .buy-now:hover {
-            background: #343a40;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
         .error, .loading {
@@ -474,13 +463,13 @@
             }
 
             .carousel-container {
-                height: 600px; /* Taller for vertical layout */
+                height: 600px;
             }
 
             .carousel-card {
                 width: 90%;
                 max-width: 500px;
-                display: block; /* Stack vertically */
+                display: block;
             }
 
             .carousel-image-wrapper {
@@ -493,7 +482,7 @@
                 display: block;
                 width: 100%;
                 padding: 20px;
-                transform: none; /* Remove centering */
+                transform: none;
                 top: 0;
             }
 
@@ -660,7 +649,6 @@
                     throw new Error('Failed to fetch carousel products');
                 }
                 carouselProducts = await response.json();
-                // Duplicate products for infinite scroll
                 carouselProducts = [...carouselProducts, ...carouselProducts];
                 displayCarousel();
                 startCarousel();
@@ -678,7 +666,7 @@
                 item.className = 'carousel-item';
                 item.innerHTML = `
                     <div class="carousel-card">
-                        <a href="/view-product?id=${product.id}" style="text-decoration: none; color: inherit;">
+                        <a href="/product/checkout/?id=${product.id}" style="text-decoration: none; color: inherit;">
                             <div class="carousel-image-wrapper">
                                 <img src="http://127.0.0.1:8000${product.image}" alt="${product.product_name}">
                             </div>
@@ -697,17 +685,16 @@
 
         function updateCarousel() {
             const track = document.getElementById('carousel-track');
-            const itemWidth = 100; // 100% of viewport width
+            const itemWidth = 100;
             track.style.transition = 'transform 0.5s ease-in-out';
             track.style.transform = `translateX(-${currentIndex * itemWidth}vw)`;
 
-            // Reset for infinite scroll
             if (currentIndex >= carouselProducts.length / 2) {
                 setTimeout(() => {
                     track.style.transition = 'none';
                     currentIndex = 0;
                     track.style.transform = `translateX(0)`;
-                }, 500); // Match transition duration
+                }, 500);
             }
         }
 
@@ -715,7 +702,7 @@
             setInterval(() => {
                 currentIndex++;
                 updateCarousel();
-            }, 4000); // Move every 4 seconds
+            }, 4000);
         }
 
         function displayProducts(products) {
@@ -737,7 +724,7 @@
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
                 productCard.innerHTML = `
-                    <a href="/view-product?id=${product.id}" style="text-decoration: none; color: inherit;">
+                    <a href="/product/checkout/?id=${product.id}" style="text-decoration: none; color: inherit;">
                         <div class="product-image-wrapper">
                             <img src="http://127.0.0.1:8000${product.image}" alt="${product.product_name}">
                         </div>
@@ -747,6 +734,7 @@
                         <div class="price">${product.price.toFixed(2)}</div>
                         <div class="actions">
                             <button class="btn add-to-cart" onclick="addToCart(${product.id})">Add to Cart</button>
+                            <!-- Buy Now now redirects to product checkout page -->
                             <button class="btn buy-now" onclick="buyNow(${product.id})">Buy Now</button>
                         </div>
                     </div>
@@ -845,8 +833,9 @@
             }
         }
 
+        // Updated Buy Now – now redirects to product checkout page
         function buyNow(productId) {
-            alert(`Proceeding to buy product ${productId}!`);
+            window.location.href = `/product/checkout/?id=${productId}`;
         }
 
         function setTestCookie() {
