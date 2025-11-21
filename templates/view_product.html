@@ -30,7 +30,7 @@
         .nav-links a {
             margin: 0 20px;
             text-decoration: none;
-            color: #007185;
+            color: #000000ff;
             font-weight: 500;
             font-size: 15px;
         }
@@ -116,9 +116,9 @@
             flex-wrap: wrap;
         }
         .btn {
-            padding: 14px 32px;
+            padding: 10px 12px;
             border: none;
-            border-radius: 50px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -130,22 +130,21 @@
             justify-content: center;
         }
         .add-to-cart-btn {
-            background: #000000;
-            color: white;
+            background: #279f4b6c;
+            color: #212529;
+            border: 2px solid #212529;
         }
-        .add-to-cart-btn:hover {
-            background: #1a1a1a;
+        {% comment %} .add-to-cart-btn:hover {
             transform: translateY(-2px);
-        }
+        } {% endcomment %}
         .buy-now-btn {
-            background: #FF9900;
-            color: white;
-            box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+            background: #212529;
+            color: #ffffff;
         }
-        .buy-now-btn:hover {
-            background: #e68a00;
+        {% comment %} .buy-now-btn:hover {
+            background: #19c4e3ff;
             transform: translateY(-2px);
-        }
+        } {% endcomment %}
 
         .loading, .error {
             text-align: center;
@@ -203,7 +202,7 @@
                             <i class="fas fa-cart-plus"></i> Add to Cart
                         </button>
                         <button class="btn buy-now-btn" onclick="buyNow(window.currentProductId)">
-                            <i class="fas fa-bolt"></i> Buy Now
+                            <i class="fas fa-bolt"></i> Pay Now
                         </button>
                     </div>
                 </div>
