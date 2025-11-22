@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .jwt_check import CookieJWTAuthentication
+from razorpay_payments.models import RazorpayPayment
+from razorpay_payments.serializers import PaymentSerializer
 
 
 class UserRegistration(APIView):
@@ -164,6 +166,14 @@ class UserProfile(APIView):
                 }, status=status.HTTP_401_UNAUTHORIZED)
             
             user = request.user  # Authenticated user from token
+
+            # Get all payments for this user
+            payments = RazorpayPayment.objects.filter(user=user)\
+                .select_related('product')\
+                .order_by('-created_at')
+
+        # Serialize with request in context (for absolute image URLs)
+            serializer = PaymentSerializer(payments, many=True, context={'request': request})
             
             # Build profile data
             profile_data = {
@@ -173,7 +183,8 @@ class UserProfile(APIView):
             
             return Response({
                 'message': f'Welcome Back {user.username}!',
-                'user': profile_data
+                'user': profile_data,
+                'payments': serializer.data
             }, status=status.HTTP_200_OK)
             
         except Exception as e:

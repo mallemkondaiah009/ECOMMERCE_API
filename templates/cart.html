@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart</title>
+    <title>Your Cart | HAKART</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -558,9 +558,20 @@
         }
 
         function checkout() {
-            const selected = Array.from(document.querySelectorAll('.item-checkbox:checked')).length;
-            if (selected === 0) return alert('Please select items to checkout');
-            alert(`Proceeding to checkout with ${selected} item(s)!\nTotal: ${document.getElementById('total').textContent}`);
+            const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+            
+            if (checkedBoxes.length === 0) {
+                alert("Please select at least one item.");
+                return;
+            }
+
+            const productIds = Array.from(checkedBoxes).map(cb => {
+                const index = parseInt(cb.dataset.index);
+                return cartData[index].product.id;
+            });
+
+            window.location.href = '/product/checkout/?id=' + productIds.join(',');
+    
         }
 
         window.onload = fetchCart;
