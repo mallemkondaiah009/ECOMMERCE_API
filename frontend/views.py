@@ -16,5 +16,8 @@ def cart_view(request):
     return render(request, 'cart.html')
 
 def productView_view(request):
-    return render(request, 'view_product.html')
+    return render(request, 'checkout.html')
+
+def payment_success(request):
+    return render (request, 'payment_success.html')
 

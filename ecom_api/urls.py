@@ -24,7 +24,7 @@ urlpatterns = [
     path('',include('accounts.urls')),
     path('',include('store.urls')),
     path('', include('frontend.urls')),
-    #path('', include('payments.urls')),
+    path('payments/', include('razorpay_payments.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

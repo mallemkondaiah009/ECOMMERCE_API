@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Placed - Thank You | HAKART</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amazon+Ember:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Amazon Ember', Arial, sans-serif;
+            background: #fff;
+            color: #0F1111;
+            line-height: 1.5;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        /* Amazon Header */
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            background: #fff;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 8px #fff, 0 0 0 12px #146eb4;
+        }
+        .success-icon svg {
+            width: 68px;
+            height: 68px;
+        }
+        .success-icon path {
+            stroke: #146eb4;
+            stroke-width: 8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: draw 1.2s forwards 0.4s;
+        }
+        @keyframes draw { to { stroke-dashoffset: 0; } }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: #0F1111;
+            margin-bottom: 12px;
+        }
+        .subtitle {
+            font-size: 21px;
+            color: #0F1111;
+            margin-bottom: 8px;
+        }
+        .thanks {
+            font-size: 18px;
+            color: #565959;
+        }
+
+        /* Main Content - Amazon Layout */
+        .main-content {
+            display: flex;
+            gap: 60px;
+            margin-top: 40px;
+            padding: 40px 0;
+            border-top: 1px solid #e7e7e7;
+        }
+        .product-section {
+            flex: 1;
+        }
+        .product-image {
+            width: 100%;
+            max-width: 420px;
+            height: 420px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #fff;
+        }
+        .product-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0F1111;
+            margin-bottom: 12px;
+        }
+        .amount {
+            font-size: 42px;
+            font-weight: 700;
+            color: #B12704;
+            margin: 20px 0;
+        }
+
+        .order-details {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #e7e7e7;
+        }
+        .section-title {
+            font-size: 21px;
+            font-weight: 700;
+            color: #0F1111;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #146eb4;
+            display: inline-block;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px dashed #ddd;
+            font-size: 17px;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .label { color: #565959; font-weight: 500; }
+        .value { 
+            font-weight: 700; 
+            color: #0F1111;
+            text-align: right;
+            min-width: 180px;
+        }
+        .highlight {
+            color: #146eb4;
+            font-weight: 700;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 60px 0 40px;
+            border-top: 1px solid #e7e7e7;
+            margin-top: 60px;
+        }
+        .btn {
+            display: inline-block;
+            background: #FFD814;
+            color: #0F1111;
+            padding: 14px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 12px;
+            min-width: 240px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #f7c12d;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #0F1111;
+        }
+
+        @media (max-width: 992px) {
+            .main-content { flex-direction: column; }
+            .product-image { max-width: 360px; height: 360px; margin: 0 auto 30px; }
+            .order-details { padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Amazon Header -->
+        <div class="header">
+            <div class="success-icon">
+                <svg viewBox="0 0 64 64">
+                    <path d="M8 34 L26 52 L56 14" />
+                </svg>
+            </div>
+            <h1>Order Placed, thank you!</h1>
+            <div class="subtitle">Confirmation will be sent to your email</div>
+            <div class="thanks">Thank you for shopping with HAKART</div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="product-section">
+                <div class="product-image">
+                    <img id="product-img" src="https://via.placeholder.com/600/eee/999?text=HAKART" alt="Product">
+                </div>
+                <div class="product-name" id="product-name">Loading product...</div>
+                <div class="amount" id="amount">₹0.00</div>
+            </div>
+
+            <div class="order-details">
+                <div class="section-title">Order Details</div>
+
+                <div class="detail-row">
+                    <span class="label">Order ID</span>
+                    <span class="value highlight" id="order-id">—</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Payment ID</span>
+                    <span class="value" id="payment-id">—</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Amount Paid</span>
+                    <span class="value highlight" id="amount2">₹0.00</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Payment Method</span>
+                    <span class="value">Razorpay • UPI/Card/Netbanking</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Order Date</span>
+                    <span class="value" id="date">—</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Delivery Expected</span>
+                    <span class="value highlight">Within 5–7 business days</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="/" class="btn">Continue Shopping</a>
+            <a href="/orders" class="btn btn-secondary">Track Your Order</a>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+
+        document.getElementById('product-name').textContent = params.get('product_name') || 'Your Product';
+        const amount = '₹' + (parseFloat(params.get('amount') || 0).toFixed(2));
+        document.getElementById('amount').textContent = amount;
+        document.getElementById('amount2').textContent = amount;
+        document.getElementById('order-id').textContent = params.get('order_id') || 'N/A';
+        document.getElementById('payment-id').textContent = params.get('payment_id') || 'N/A';
+
+        document.getElementById('date').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        const img = document.getElementById('product-img');
+        const raw = params.get('product_image');
+        if (raw) {
+            img.src = raw
+                .replace('http://127.0.0.1:8000', 'https://YOUR_NGROK_OR_LIVE_URL.ngrok.io')
+                .replace('http://localhost:8000', 'https://YOUR_NGROK_OR_LIVE_URL.ngrok.io');
+        }
+    </script>
+
+</body>
+</html>
