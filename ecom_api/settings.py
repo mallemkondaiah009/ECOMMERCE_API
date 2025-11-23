@@ -178,11 +178,11 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-# In your Django settings.py file (on the server-side, i.e., hakart.onrender.com)
+# # In your Django settings.py file (on the server-side, i.e., hakart.onrender.com)
 
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8001",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://127.0.0.1:8001",
+# ]
 
 
 
