@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'corsheaders',
     'store',
     'razorpay_payments',
     # 'frontend',
@@ -155,3 +156,8 @@ RAZORPAY_KEY_ID = "rzp_test_MU47CjQHuTTZ7q"
 RAZORPAY_KEY_SECRET = "w3WciKv1mLtACQZaGaRMhaaB"
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+# For preflight: Allow your methods/headers
+CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+CORS_ALLOW_HEADERS = ['*']
