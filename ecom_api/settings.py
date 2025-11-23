@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-!dkt362jxb2820gigc(kbcpq@azq_jm(-3onz50wv-6^c1&--c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://hakart.onrender.com']
+ALLOWED_HOSTS = ['https://hakart.onrender.com','hakart.onrender.com']
 
 
 # Application definition
