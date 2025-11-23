@@ -157,7 +157,30 @@ RAZORPAY_KEY_SECRET = "w3WciKv1mLtACQZaGaRMhaaB"
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
-# For preflight: Allow your methods/headers
-CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# In your Django settings.py file (on the server-side, i.e., hakart.onrender.com)
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8001",
+]
+
