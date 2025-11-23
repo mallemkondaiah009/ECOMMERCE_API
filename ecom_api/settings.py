@@ -42,12 +42,13 @@ INSTALLED_APPS = [
     'accounts',
     'store',
     'razorpay_payments',
-    'frontend',
+    # 'frontend',
     'rest_framework',
     'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -151,3 +152,5 @@ SIMPLE_JWT = {
 # Razorpay Configuration
 RAZORPAY_KEY_ID = "rzp_test_MU47CjQHuTTZ7q"
 RAZORPAY_KEY_SECRET = "w3WciKv1mLtACQZaGaRMhaaB"
+
+CORS_ALLOW_ALL_ORIGINS = True
