@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account • HAKART</title>
+    <title>PROFILE | HAKART</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -23,75 +23,156 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         header {
+            background: #ffffff;
             position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 80px;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
+            top: 0;
+            width: 100%;
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            padding: 0 32px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: none;
         }
 
-        .header-content {
-            max-width: 1200px;
+        .header-container {
+            max-width: 1400px;
             margin: 0 auto;
-            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 12px 24px;
+            flex-wrap: wrap;
         }
 
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent);
-            letter-spacing: -1px;
+        .header-container h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #212529;
+            letter-spacing: -0.5px;
+            margin-right: 20px;
         }
 
-        .nav-right {
+        .nav-links {
             display: flex;
-            gap: 28px;
+            gap: 12px;
             align-items: center;
+            margin-left: 20px;
         }
 
-        .nav-right a {
-            color: var(--text);
+        .nav-links a {
             text-decoration: none;
-            font-weight: 500;
-            font-size: 15px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
             transition: all 0.2s ease;
         }
 
-        .nav-right a:hover { opacity: 0.7; }
-        .nav-right a i { font-size: 20px; }
-
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -12px;
-            background: var(--accent);
-            color: white;
-            font-size: 11px;
-            font-weight: 600;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .nav-links a:hover {
+            background: #e9ecef;
         }
 
-        .main-content { padding-top: 80px; min-height: 100vh; background: var(--bg); }
+        .nav-links .login-button {
+            background: #212529;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links .login-button:hover {
+            background: #343a40;
+            transform: translateY(-1px);
+        }
+
+        .nav-links .icon-link {
+            position: relative;
+        }
+
+        .nav-links .icon-link img {
+            width: 24px;
+            height: 24px;
+            display: block;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-links .icon-link:hover img {
+            opacity: 1;
+        }
+
+        .search-section {
+            flex: 1;
+            max-width: 500px;
+            min-width: 200px;
+            margin: 0 20px;
+            display: none;
+        }
+
+        .search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            width: 18px;
+            height: 18px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        #search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 10px 14px 10px 40px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: transparent;
+        }
+
+        .clear-search {
+            background: #f8f9fa;
+            border: none;
+            color: #6c757d;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-right: 6px;
+            transition: all 0.2s ease;
+            display: none;
+        }
+
+        .clear-search:hover {
+            background: #e9ecef;
+            color: #212529;
+        }
+
+        .clear-search.visible {
+            display: block;
+        }
+
+        body {
+            padding-top: 80px;
+        }
+
+        .main-content { min-height: 100vh; background: var(--bg); }
         .container { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
         .card { background: white; border-radius: 20px; padding: 40px; margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
 
@@ -174,24 +255,41 @@
         @media (max-width: 768px) {
             .order-body { flex-direction: column; text-align: center; }
             .order-image { width: 140px; height: 140px; }
-            header { padding: 0 20px; }
-            .nav-right { gap: 20px; }
+            .nav-links { gap: 8px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
+    <!-- Header with HAKART branding -->
     <header>
-        <div class="header-content">
-            <div class="logo">HAKART</div>
-            <div class="nav-right">
-                <a href="/"><i class="fas fa-home"></i> <span>Home</span></a>
-                <a href="/cart" class="relative">
-                    <i class="fas fa-shopping-bag"></i> <span>Cart</span>
-                    <span class="cart-badge" id="cart-count">0</span>
-                </a>
+        <div class="header-container">
+            <h1>HAKART</h1>
+            <div class="search-section">
+                <div class="search-bar">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Search for products..."
+                        autocomplete="off"
+                    >
+                    <button class="clear-search" id="clear-search">Clear</button>
+                </div>
             </div>
+            <nav class="nav-links" id="nav-links">
+                <a href="/" style="color: #212529; text-decoration: none; font-size: 20px;" title="Home"><i class="fas fa-home"></i></a>
+                <a href="/login" id="login-link" class="login-button">Login</a>
+                <a href="/cart" id="cart-link" class="icon-link" title="Cart" style="display: none;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" alt="Cart">
+                </a>
+                <a href="/profile" id="profile-link" class="icon-link" title="Profile" style="display: none;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile">
+                </a>
+            </nav>
         </div>
     </header>
 
@@ -232,16 +330,48 @@
     </div>
 
     <script>
-        const baseURL = 'https://hakart.onrender.com';  // Change if needed
+        const baseURL = 'https://hakart.onrender.com';
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function updateHeader() {
+            const accessToken = getCookie('access_token');
+            const isAuthenticated = !!accessToken;
+            const loginLink = document.getElementById('login-link');
+            const cartLink = document.getElementById('cart-link');
+            const profileLink = document.getElementById('profile-link');
+
+            if (isAuthenticated) {
+                loginLink.style.display = 'none';
+                cartLink.style.display = 'inline-flex';
+                profileLink.style.display = 'inline-flex';
+            } else {
+                loginLink.style.display = 'inline-flex';
+                cartLink.style.display = 'none';
+                profileLink.style.display = 'none';
+            }
+        }
 
         async function loadProfile() {
             try {
                 const res = await fetch(`${baseURL}/api/auth/user-profile/`, {
                     method: 'GET',
-                    credentials: 'include'  // This sends the HttpOnly cookies automatically
+                    credentials: 'include'
                 });
 
-                // If not logged in → redirect
                 if (!res.ok) {
                     if (res.status === 401) {
                         alert('Your session has expired. Please log in again.');
@@ -252,7 +382,6 @@
 
                 const data = await res.json();
 
-                // Update profile info
                 document.getElementById('username-display').textContent = 
                     data.user.username || data.user.email.split('@')[0];
                 document.getElementById('email-display').textContent = data.user.email;
@@ -309,7 +438,6 @@
             }
         }
 
-        // Logout
         document.getElementById('logout-btn').addEventListener('click', async () => {
             if (!confirm('Are you sure you want to sign out?')) return;
 
@@ -321,8 +449,10 @@
             window.location.href = '/login';
         });
 
-        // Load profile on page load
-        window.addEventListener('DOMContentLoaded', loadProfile);
+        window.addEventListener('DOMContentLoaded', () => {
+            updateHeader();
+            loadProfile();
+        });
     </script>
 </body>
 </html>
