@@ -12,4 +12,4 @@ python manage.py collectstatic --no-input
 python manage.py migrate
 
 # Step 4: Start the Server (Optional)
-python manage.py runserver
+uvicorn ecom_api.asgi:application
