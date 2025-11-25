@@ -12,26 +12,44 @@ from razorpay_payments.serializers import PaymentSerializer
 
 
 class UserRegistration(APIView):
-    def post(self,request):
+    def post(self, request):
         username = request.data.get('username')
         email = request.data.get('email')
         password = request.data.get('password')
         
-        if User.objects.filter(email=email).exists():
-            return Response({"error":"email already exists!"}, status=status.HTTP_400_BAD_REQUEST)
-        if User.objects.filter(username=username).exists():
-            return Response({"error": "username already exists!"}, status=status.HTTP_400_BAD_REQUEST)
+        # Validation
+        if not username or not email or not password:
+            return Response(
+                {"error": "All fields are required!"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
+        if User.objects.filter(email=email).exists():
+            return Response(
+                {"error": "Email already exists!"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if User.objects.filter(username=username).exists():
+            return Response(
+                {"error": "Username already exists!"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         serializer = UserSerializer(data=request.data)
-
+        
         if serializer.is_valid():
             try:
-                serializer.save()
+                user = serializer.save()
+                user.password = password 
+                user.save()
+                
                 return Response(
-                    {'message': 'User Created successfully..', 
-                     'data': serializer.data},
-                     status=status.HTTP_201_CREATED
+                    {
+                        'message': 'User created successfully!',
+                        'data': serializer.data
+                    },
+                    status=status.HTTP_201_CREATED
                 )
             
             except ValidationError as e:
