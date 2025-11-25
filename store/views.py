@@ -140,8 +140,6 @@ class AddToCart(APIView):
             )
         
         except Exception as e:
-            # Log the error for debugging
-            # logger.error(f"Error adding item to cart: {str(e)}")
             return Response(
                 {'error': 'An unexpected error occurred while updating cart'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -187,7 +185,6 @@ class RandomProducts(APIView):
         if total_products <= 5:
             products = Product.objects.all()
         else:
-            # Method 2: Random sampling by IDs - Better performance for large datasets
             all_ids = list(Product.objects.values_list('id', flat=True))
             random_ids = random.sample(all_ids, min(5, len(all_ids)))
             products = Product.objects.filter(id__in=random_ids)

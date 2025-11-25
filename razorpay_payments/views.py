@@ -6,14 +6,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from accounts.jwt_check import CookieJWTAuthentication
-
 from store.models import Product
 from accounts.models import User
 from .models import RazorpayPayment
 from .serializers import PaymentSerializer
 
 
-# 1. Create Razorpay order + save Payment object
 class CreateOrderAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
 
@@ -23,7 +21,7 @@ class CreateOrderAPIView(APIView):
             return Response({"error": "product_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         product = get_object_or_404(Product, id=product_id)
-        user = request.user   # assuming you use DRF auth (or session auth)
+        user = request.user
 
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
@@ -53,7 +51,6 @@ class CreateOrderAPIView(APIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-# 2. Verify payment & mark as success
 class VerifyPaymentAPIView(APIView):
     authentication_classes = [CookieJWTAuthentication]
 
@@ -67,7 +64,7 @@ class VerifyPaymentAPIView(APIView):
 
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 
-        # Verify signature (recommended)
+        # Verify signature
         try:
             client.utility.verify_payment_signature({
                 'razorpay_order_id': razorpay_order_id,

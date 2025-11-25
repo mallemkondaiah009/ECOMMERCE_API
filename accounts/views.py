@@ -154,7 +154,7 @@ class UserLogin(APIView):
 
 
 class UserProfile(APIView):
-    authentication_classes = [CookieJWTAuthentication]  # Use custom authentication
+    authentication_classes = [CookieJWTAuthentication] 
 
     def get(self, request):
         try:
@@ -172,10 +172,8 @@ class UserProfile(APIView):
                 .select_related('product')\
                 .order_by('-created_at')
 
-        # Serialize with request in context (for absolute image URLs)
             serializer = PaymentSerializer(payments, many=True, context={'request': request})
             
-            # Build profile data
             profile_data = {
                 'email': user.email,
                 'username': user.username,
@@ -188,7 +186,6 @@ class UserProfile(APIView):
             }, status=status.HTTP_200_OK)
             
         except Exception as e:
-            # Catch any other unexpected errors
             return Response({
                 'error': 'An error occurred while retrieving profile',
                 'detail': str(e)

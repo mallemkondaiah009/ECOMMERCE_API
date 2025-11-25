@@ -2,7 +2,6 @@ from django.db import models
 from store.models import Product
 from accounts.models import User
 
-# Create your models here.
 class RazorpayPayment(models.Model):
     order_id = models.CharField(max_length=100)
     payment_id = models.CharField(max_length=100, blank=True, null=True)

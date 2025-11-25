@@ -13,12 +13,11 @@ class CookieJWTAuthentication(JWTAuthentication):
             validated_token = self.get_validated_token(raw_token)
             
             # Extract user_id from the token payload
-            user_id = validated_token.get('user_id')  # or validated_token['user_id']
+            user_id = validated_token.get('user_id')
             
             if user_id is None:
                 raise AuthenticationFailed('Token contained no recognizable user identification')
             
-            # Query the user directly
             try:
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:
