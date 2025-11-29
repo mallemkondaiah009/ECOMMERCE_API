@@ -9,6 +9,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .jwt_check import CookieJWTAuthentication
 from razorpay_payments.models import RazorpayPayment
 from razorpay_payments.serializers import PaymentSerializer
+from passlib.context import CryptContext
+
+
+
+pwd_context = CryptContext(schemes=['argon2'], deprecated='auto')
 
 
 class UserRegistration(APIView):
@@ -40,8 +45,11 @@ class UserRegistration(APIView):
         
         if serializer.is_valid():
             try:
+
+                hashed_password = pwd_context.hash(password)
+                # Save user with hashing password
                 user = serializer.save()
-                user.password = password 
+                user.password = hashed_password
                 user.save()
                 
                 return Response(
@@ -128,48 +136,54 @@ class UserLogin(APIView):
                 {'error': 'Invalid email or password'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-        if user.password == password:
-            refresh = RefreshToken.for_user(user)
-            response = Response(
-                {
-                    'message': 'Login Successful',
-                    'tokens': {
-                        'refresh': str(refresh),
-                        'access': str(refresh.access_token)
+         # Verify password using Argon2
+        try:
+            if pwd_context.verify(password, user.password):
+                refresh = RefreshToken.for_user(user)
+                response = Response(
+                    {
+                        'message': 'Login Successful',
+                        'tokens': {
+                            'refresh': str(refresh),
+                            'access': str(refresh.access_token)
+                        },
+                        'user': {
+                            'email': user.email,
+                            'username': user.username
+                        }
                     },
-                    'user': {
-                        'email': user.email,
-                        'username': user.username
-                    }
-                },
-                status=status.HTTP_200_OK
-            )
-            response.set_cookie(
-                key='refresh_token',
-                value=str(refresh),
-                httponly=False,
-                secure=False,
-                samesite='Lax',
-                max_age = 10 * 24 * 60 * 60,  # 10 days in seconds = 864,000
-                path='/'
-            )
-            response.set_cookie(
-                key='access_token',
-                value=str(refresh.access_token),
-                httponly=False,
-                secure=False,
-                samesite='Lax',
-                max_age = 7 * 24 * 60 * 60, # 7 days in seconds = 604,800
-                path='/'
-            )
-            return response
-
-        else:
+                    status=status.HTTP_200_OK
+                )
+                response.set_cookie(
+                    key='refresh_token',
+                    value=str(refresh),
+                    httponly=True,
+                    secure=True,
+                    samesite='Lax',
+                    max_age=10 * 24 * 60 * 60,  # 10 days in seconds = 864,000
+                    path='/'
+                )
+                response.set_cookie(
+                    key='access_token',
+                    value=str(refresh.access_token),
+                    httponly=True,
+                    secure=True,
+                    samesite='Lax',
+                    max_age=7 * 24 * 60 * 60,  # 7 days in seconds = 604,800
+                    path='/'
+                )
+                return response
+            else:
+                return Response(
+                    {"error": "Invalid email or password"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+        
+        except Exception as e:
             return Response(
-                {"error": "Incorrect password"},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"error": f"Authentication failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
 
 class UserProfile(APIView):
     authentication_classes = [CookieJWTAuthentication] 
@@ -231,5 +245,27 @@ class UserProfile(APIView):
 
         return response
         
+class CheckAuthStatus(APIView):
+    authentication_classes = [CookieJWTAuthentication]
+
+    def get(self, request):
+        user = request.user
+
+        if user.id is None:
+            return Response(
+                {
+                    'is_auth':False
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        else:
+            return Response(
+                {
+                    'is_auth':True
+                },
+                status=status.HTTP_200_OK
+
+            )
+
 
 
