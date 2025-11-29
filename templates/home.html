@@ -643,14 +643,32 @@
             return null;
         }
 
+        
+        let authStatus = false;
+
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${baseURL}/api/check-auth/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                
+                const data = await response.json();
+                authStatus = data.is_auth === true;
+                return authStatus;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                authStatus = False;
+                return false;
+            }
+        }
+
         function updateHeader() {
-            const accessToken = getCookie('access_token');
-            const isAuthenticated = !!accessToken;
             const loginLink = document.getElementById('login-link');
             const cartLink = document.getElementById('cart-link');
             const profileLink = document.getElementById('profile-link');
 
-            if (isAuthenticated) {
+            if (authStatus) {
                 loginLink.style.display = 'none';
                 cartLink.style.display = 'inline-flex';
                 profileLink.style.display = 'inline-flex';
@@ -903,7 +921,11 @@
             setTimeout(updateHeader, 1000);
             setTimeout(updateHeader, 3000);
 
-            window.addEventListener('focus', updateHeader);
+            window.addEventListener('focus', () => {
+                checkAuth().then(() => {
+                    updateHeader();
+                });
+            });
             window.setTestCookie = setTestCookie;
         };
     </script>
