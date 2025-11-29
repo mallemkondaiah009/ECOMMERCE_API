@@ -634,16 +634,6 @@
         let carouselProducts = [];
         let currentIndex = 0;
 
-        function getCookie(name) {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) {
-                return parts.pop().split(';').shift().trim();
-            }
-            return null;
-        }
-
-        
         let authStatus = false;
 
         async function checkAuth() {
@@ -737,7 +727,7 @@
                     <div class="carousel-card">
                         <a href="/product/checkout/?id=${product.id}" style="text-decoration: none; color: inherit;">
                             <div class="carousel-image-wrapper">
-                                <img src="${product.image}" alt="${product.product_name}">
+                                <img src="${baseURL}/${product.image}" alt="${product.product_name}">
                             </div>
                         </a>
                         <div class="carousel-info">
@@ -795,7 +785,7 @@
                 productCard.innerHTML = `
                     <a href="/product/checkout/?id=${product.id}" style="text-decoration: none; color: inherit;">
                         <div class="product-image-wrapper">
-                            <img src="${product.image}" alt="${product.product_name}">
+                            <img src="${baseURL}/${product.image}" alt="${product.product_name}">
                         </div>
                     </a>
                     <div class="product-info">
@@ -871,13 +861,14 @@
         }
 
         async function addToCart(productId) {
-            if (!getCookie('access_token')) {
+            if (!authStatus) {
                 showToast('Please log in to add items to your cart', 'info');
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 1500);
                 return;
             }
+            
             try {
                 const response = await fetch(`${baseURL}/api/add-to-cart/`, {
                     method: 'POST',
@@ -907,26 +898,19 @@
             window.location.href = `/product/checkout/?id=${productId}`;
         }
 
-        function setTestCookie() {
-            document.cookie = 'access_token=test_token; path=/; SameSite=Lax';
-            updateHeader();
-        }
-
         window.onload = () => {
-            updateHeader();
+            checkAuth().then(() => {
+                updateHeader();
+            });
             fetchProducts();
             fetchCarouselProducts();
             setupSearch();
-
-            setTimeout(updateHeader, 1000);
-            setTimeout(updateHeader, 3000);
 
             window.addEventListener('focus', () => {
                 checkAuth().then(() => {
                     updateHeader();
                 });
             });
-            window.setTestCookie = setTestCookie;
         };
     </script>
 </body>
