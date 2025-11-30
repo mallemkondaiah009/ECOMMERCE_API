@@ -108,60 +108,6 @@
             display: none;
         }
 
-        .search-bar {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: #ffffff;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 2px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 14px;
-            width: 18px;
-            height: 18px;
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        #search-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 10px 14px 10px 40px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            background: transparent;
-        }
-
-        .clear-search {
-            background: #f8f9fa;
-            border: none;
-            color: #6c757d;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-right: 6px;
-            transition: all 0.2s ease;
-            display: none;
-        }
-
-        .clear-search:hover {
-            background: #e9ecef;
-            color: #212529;
-        }
-
-        .clear-search.visible {
-            display: block;
-        }
-
         body {
             padding-top: 60px;
         }
@@ -453,21 +399,6 @@
     <header>
         <div class="header-container">
             <h1>HAKART</h1>
-            <div class="search-section">
-                <div class="search-bar">
-                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    <input
-                        type="text"
-                        id="search-input"
-                        placeholder="Search for products..."
-                        autocomplete="off"
-                    >
-                    <button class="clear-search" id="clear-search">Clear</button>
-                </div>
-            </div>
             <nav class="nav-links" id="nav-links">
                 <a href="/" style="color: #212529; text-decoration: none; font-size: 20px;" title="Home"><i class="fas fa-home"></i></a>
                 <a href="/login" id="login-link" class="login-button">Login</a>
@@ -483,8 +414,6 @@
 
     <div class="container">
         <div>
-            
-
             <div id="cart-loading" class="loading">Loading your cart...</div>
             <div id="cart-error" class="error" style="display: none;"></div>
 
@@ -537,8 +466,49 @@
         let cartData = [];
         let saveTimeout;
         let csrfToken = null;
+        let authStatus = false;
 
-        // Get CSRF token from cookie
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${baseURL}/api/check-auth/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                
+                if (response.status === 200) {
+                    const data = await response.json();
+                    authStatus = data.is_auth === true;
+                } else if (response.status === 401) {
+                    const data = await response.json();
+                    authStatus = data.is_auth === false ? false : true;
+                } else {
+                    authStatus = false;
+                }
+                
+                return authStatus;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                authStatus = false;
+                return false;
+            }
+        }
+
+        function updateHeader() {
+            const loginLink = document.getElementById('login-link');
+            const cartLink = document.getElementById('cart-link');
+            const profileLink = document.getElementById('profile-link');
+
+            if (authStatus) {
+                loginLink.style.display = 'none';
+                cartLink.style.display = 'inline-flex';
+                profileLink.style.display = 'inline-flex';
+            } else {
+                loginLink.style.display = 'inline-flex';
+                cartLink.style.display = 'none';
+                profileLink.style.display = 'none';
+            }
+        }
+
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -553,34 +523,17 @@
             }
             return cookieValue;
         }
-
-        function updateHeader() {
-            const accessToken = getCookie('access_token');
-            const isAuthenticated = !!accessToken;
-            const loginLink = document.getElementById('login-link');
-            const cartLink = document.getElementById('cart-link');
-            const profileLink = document.getElementById('profile-link');
-
-            if (isAuthenticated) {
-                loginLink.style.display = 'none';
-                cartLink.style.display = 'inline-flex';
-                profileLink.style.display = 'inline-flex';
-            } else {
-                loginLink.style.display = 'inline-flex';
-                cartLink.style.display = 'none';
-                profileLink.style.display = 'none';
-            }
-        }
-
+        const csrftoken = getCookie('csrftoken');
         async function fetchCart() {
             try {
                 document.getElementById('cart-loading').style.display = 'block';
                 document.getElementById('cart-error').style.display = 'none';
 
-                // Get CSRF token
                 csrfToken = getCookie('csrftoken');
 
-                const response = await fetch(`${baseURL}/api/add-to-cart/`);
+                const response = await fetch(`${baseURL}/api/add-to-cart/`, {
+                    credentials: 'include',
+                });
                 if (!response.ok) throw new Error('Failed to load cart');
 
                 const data = await response.json();
@@ -619,7 +572,7 @@
                     <div class="item-details">
                         <div class="item-name">${item.product.product_name}</div>
                         <div class="item-info">In Stock • Eligible for FREE Shipping</div>
-                        <div class="item-price">₹${(item.product.price)}</div>
+                        <div class="item-price">₹${(item.product.price).toFixed(2)}</div>
 
                         <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
                             <div class="quantity-selector">
@@ -667,7 +620,6 @@
 
         async function updateQuantity(productId, action) {
             try {
-                // Update local cartData instantly for UI feedback
                 const itemIndex = cartData.findIndex(item => item.product.id === productId);
                 if (itemIndex !== -1) {
                     if (action === 'add') {
@@ -678,18 +630,17 @@
                         showToast(`✓ Quantity decreased to ${cartData[itemIndex].quantity}`, 'success');
                     }
                     
-                    // Update display immediately
                     updateQtyDisplay(productId, cartData[itemIndex].quantity);
                     updateSummary();
                 }
                 
-                // Send update to server in background
                 const response = await fetch(`${baseURL}/api/add-to-cart/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': csrfToken || '',
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         product_id: productId,
                         quantity: 1,
@@ -709,7 +660,6 @@
             const qtyInputs = document.querySelectorAll(`[data-product-id="${productId}"]`);
             qtyInputs.forEach(input => input.value = quantity);
             
-            // Update decrease button state
             const decreaseBtn = document.querySelector(`[data-product-id="${productId}"]`).parentElement.querySelector('.qty-btn:first-child');
             if (decreaseBtn) {
                 if (quantity <= 1) {
@@ -755,18 +705,15 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': csrfToken || '',
-                    }
+                    },
+                    credentials: 'include',
                 });
 
                 if (!response.ok) throw new Error('Failed to delete');
 
-                // Get product name before removing
                 const productName = cartData[index].product.product_name;
-
-                // Remove item from local cartData without full reload
                 cartData.splice(index, 1);
                 
-                // Re-render cart items and update summary
                 displayCart(cartData);
                 showToast(`✓ ${productName} removed from cart`, 'success');
                 showSaveIndicator();
@@ -795,12 +742,19 @@
             });
 
             window.location.href = '/product/checkout/?id=' + productIds.join(',');
-    
         }
 
         window.onload = () => {
-            updateHeader();
+            checkAuth().then(() => {
+                updateHeader();
+            });
             fetchCart();
+
+            window.addEventListener('focus', () => {
+                checkAuth().then(() => {
+                    updateHeader();
+                });
+            });
         };
     </script>
 </body>

@@ -97,68 +97,6 @@
             opacity: 1;
         }
 
-        .search-section {
-            flex: 1;
-            max-width: 500px;
-            min-width: 200px;
-            margin: 0 20px;
-            display: none;
-        }
-
-        .search-bar {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: #ffffff;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 2px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 14px;
-            width: 18px;
-            height: 18px;
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        #search-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 10px 14px 10px 40px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            background: transparent;
-        }
-
-        .clear-search {
-            background: #f8f9fa;
-            border: none;
-            color: #6c757d;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-right: 6px;
-            transition: all 0.2s ease;
-            display: none;
-        }
-
-        .clear-search:hover {
-            background: #e9ecef;
-            color: #212529;
-        }
-
-        .clear-search.visible {
-            display: block;
-        }
-
         body {
             padding-top: 80px;
         }
@@ -331,25 +269,9 @@
     </style>
 </head>
 <body>
-    <!-- Header with HAKART branding -->
     <header>
         <div class="header-container">
             <h1>HAKART</h1>
-            <div class="search-section">
-                <div class="search-bar">
-                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    <input
-                        type="text"
-                        id="search-input"
-                        placeholder="Search for products..."
-                        autocomplete="off"
-                    >
-                    <button class="clear-search" id="clear-search">Clear</button>
-                </div>
-            </div>
             <nav class="nav-links" id="nav-links">
                 <a href="/" style="color: #212529; text-decoration: none; font-size: 20px;" title="Home"><i class="fas fa-home"></i></a>
                 <a href="/login" id="login-link" class="login-button">Login</a>
@@ -401,6 +323,48 @@
         const productId = urlParams.get('id');
         window.currentProductId = null;
         let currentProduct = null;
+        let authStatus = false;
+
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${baseURL}/api/check-auth/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                
+                if (response.status === 200) {
+                    const data = await response.json();
+                    authStatus = data.is_auth === true;
+                } else if (response.status === 401) {
+                    const data = await response.json();
+                    authStatus = data.is_auth === false ? false : true;
+                } else {
+                    authStatus = false;
+                }
+                
+                return authStatus;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                authStatus = false;
+                return false;
+            }
+        }
+
+        function updateHeader() {
+            const loginLink = document.getElementById('login-link');
+            const cartLink = document.getElementById('cart-link');
+            const profileLink = document.getElementById('profile-link');
+
+            if (authStatus) {
+                loginLink.style.display = 'none';
+                cartLink.style.display = 'inline-flex';
+                profileLink.style.display = 'inline-flex';
+            } else {
+                loginLink.style.display = 'inline-flex';
+                cartLink.style.display = 'none';
+                profileLink.style.display = 'none';
+            }
+        }
 
         function getCookie(name) {
             let cookieValue = null;
@@ -417,24 +381,6 @@
             return cookieValue;
         }
         const csrftoken = getCookie('csrftoken');
-
-        function updateHeader() {
-            const accessToken = getCookie('access_token');
-            const isAuthenticated = !!accessToken;
-            const loginLink = document.getElementById('login-link');
-            const cartLink = document.getElementById('cart-link');
-            const profileLink = document.getElementById('profile-link');
-
-            if (isAuthenticated) {
-                loginLink.style.display = 'none';
-                cartLink.style.display = 'inline-flex';
-                profileLink.style.display = 'inline-flex';
-            } else {
-                loginLink.style.display = 'inline-flex';
-                cartLink.style.display = 'none';
-                profileLink.style.display = 'none';
-            }
-        }
 
         function showToast(message, type = 'success', duration = 3000) {
             const toast = document.createElement('div');
@@ -454,7 +400,9 @@
             if (!productId) return displayError('No product selected.');
 
             try {
-                const response = await fetch(`${baseURL}/api/product/${productId}/`);
+                const response = await fetch(`${baseURL}/api/product/${productId}/`, {
+                    credentials: 'include',
+                });
                 if (!response.ok) throw new Error('Product not found');
                 currentProduct = await response.json();
                 window.currentProductId = currentProduct.id;
@@ -469,7 +417,7 @@
             document.getElementById('product-details').style.display = 'block';
 
             document.querySelector('.product-title').textContent = product.product_name;
-            document.getElementById('main-img').src = product.image || 'https://via.placeholder.com/500';
+            document.getElementById('main-img').src = `${product.image}` || 'https://via.placeholder.com/500';
             document.getElementById('main-img').alt = product.product_name;
 
             document.querySelector('.price').textContent = `₹${parseFloat(product.price).toFixed(2)}`;
@@ -491,10 +439,22 @@
         }
 
         async function addToCart(productId) {
+            if (!authStatus) {
+                showToast('Please log in to add items to your cart', 'info');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+                return;
+            }
+
             try {
                 const res = await fetch(`${baseURL}/api/add-to-cart/`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRFToken': csrftoken 
+                    },
+                    credentials: 'include',
                     body: JSON.stringify({ product_id: productId, quantity: 1 })
                 });
                 if (res.ok) {
@@ -508,6 +468,14 @@
         }
 
         async function payNow(productId) {
+            if (!authStatus) {
+                showToast('Please log in to proceed with payment', 'info');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+                return;
+            }
+
             if (!currentProduct) {
                 showToast('Product not loaded', 'error');
                 return;
@@ -516,7 +484,6 @@
             const payBtn = document.querySelector('.buy-now-btn');
             const originalText = payBtn.innerHTML;
             
-            // Add loading state
             payBtn.classList.add('btn-loading');
             payBtn.innerHTML = 'Processing...';
 
@@ -527,6 +494,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': csrftoken
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ product_id: productId })
                 });
 
@@ -537,15 +505,12 @@
 
                 const orderData = await orderResponse.json();
 
-                // Remove loading state before opening Razorpay
                 payBtn.classList.remove('btn-loading');
                 payBtn.innerHTML = originalText;
 
                 let razorpayImage = "https://i.imgur.com/6n5lM1C.png";
                 if (currentProduct.image) {
-                    razorpayImage = currentProduct.image
-                        .replace(`${baseURL}`, 'https://your-ngrok-url.ngrok.io')
-                        .replace(`${baseURL}`, 'https://your-ngrok-url.ngrok.io');
+                    razorpayImage = `${baseURL}/${currentProduct.image}`;
                 }
 
                 const options = {
@@ -557,7 +522,6 @@
                     image: razorpayImage,
                     order_id: orderData.razorpay_order_id,
                     handler: async function (response) {
-                        // Add loading state during verification
                         payBtn.classList.add('btn-loading');
                         payBtn.innerHTML = 'Verifying...';
 
@@ -567,6 +531,7 @@
                                 'Content-Type': 'application/json',
                                 'X-CSRFToken': csrftoken
                             },
+                            credentials: 'include',
                             body: JSON.stringify({
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_order_id: response.razorpay_order_id,
@@ -619,9 +584,17 @@
         }
 
         window.onload = () => {
-            updateHeader();
-            fetchProduct();
+            checkAuth().then(() => {
+                updateHeader();
+                fetchProduct();
+            });
         };
+
+        window.addEventListener('focus', () => {
+            checkAuth().then(() => {
+                updateHeader();
+            });
+        });
     </script>
 </body>
 </html>
